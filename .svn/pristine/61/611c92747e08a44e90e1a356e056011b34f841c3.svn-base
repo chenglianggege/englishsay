@@ -1,0 +1,114 @@
+import React, {
+    Component
+} from 'react';
+import Header from './common/Header';
+import BaseComponent from './../libs/BaseComponent'
+import {
+    View,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,Switch,
+    Dimensions, Alert, ScrollView
+} from 'react-native'
+
+import Video from 'react-native-video';
+import SystemSetting from 'react-native-system-setting'
+import { yellow } from 'ansi-colors';
+
+export default class Avideotest extends BaseComponent{
+    constructor(props) {
+        super(props)
+        this.state = {
+            brightness: 0,  //当前亮度
+            value: false,
+            brightnessOld: 0   //上次亮度
+        }
+    }
+    async componentWillMount() {
+        try {
+            let brightValue = await global.storage.load({key: 'brightNessValue'})
+            this.setState({value:brightValue})
+            console.log(brightValue)
+            //await global.storage.load({key: 'checkPromise'})
+        }catch (e) {
+            console.log(333)
+            //await global.storage.save({key: 'brightNessValue', data: false})
+        }    
+        let brightNessNumv = await SystemSetting.getBrightness()
+        await global.storage.save({key: 'brightNessNum', data: brightNessNumv})
+        this.setState({
+            brightness: brightNessNumv,
+            brightnessOld: brightNessNumv
+        }) 
+    }
+    render() {
+        return(
+            <View style={{flex: 1, backgroundColor: "#fff"}}>
+                <Header title="视频播放2" onPress={()=>this.props.navigation.goBack()}/>
+                <Switch
+                    style={{marginTop: 20}}
+                    //动态改变value
+                    value={this.state.value}
+                    //当切换开关室回调此方法
+                    //onValueChange={(value)=>{this.setState({value: value})}}
+                    onValueChange={(value)=>this._toSent1(value)}
+                />
+                <TouchableOpacity onPress={()=>this._toSent()} style={styles.btnGroup}>
+                <Text>获取亮度33</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this._toSent1()} style={styles.btnGroup}>
+                    <Text>护眼99</Text>
+                    </TouchableOpacity>     
+                <Video 
+                    /* source={{ uri: 'https://gslb.miaopai.com/stream/HNkFfNMuhjRzDd-q6j9qycf54OaKqInVMu0YhQ__.mp4?ssig=bbabfd7684cae53660dc2d4c2103984e&time_stamp=1533631567740&cookie_id=&vend=1&os=3&partner=1&platform=2&cookie_id=&refer=miaopai&scid=HNkFfNMuhjRzDd-q6j9qycf54OaKqInVMu0YhQ__', type: 'mpd' }} */
+                    //source={require('../../background.mp4')}//设置视频源  
+                    source={{uri: "http://gslb.miaopai.com/stream/7EWFhV-RN22bPLAjOg-zseKlknS4ff7QoBCKyg__.mp4?vend=miaopai&ssig=64af7cad632956b35e03886f341102a8&time_stamp=1564387123129&mpflag=32"}}   // Can be a URL or a local file.
+                    ref={(ref) => {
+                        this.player = ref
+                    }}                                      // Store reference
+                    onBuffer={this.onBuffer}                // Callback when remote video is buffering
+                    onError={this.videoError}               // Callback when video cannot be loaded
+                    style={styles.backgroundVideo} 
+                /> 
+                
+
+            </View>
+        )
+    }
+    onBuffer(){
+        console.log('onBuffer')
+    }
+    videoError(){
+        console.log('videoError')
+    }
+    _toSent(){
+        console.log(this.state.brightness)
+    }
+    async _toSent1(v) {
+        try{
+            await global.storage.save({key: 'brightNessValue', data: v})
+        }catch(e){
+
+        }
+        this.setState({value: v})
+        SystemSetting.setAppBrightness(this.state.brightness/3)
+    }
+}
+const styles = StyleSheet.create({
+    backgroundVideo: {
+        position: 'absolute',
+        top: 280,
+        left: 20,
+        bottom: 100,
+        right: 20,
+        backgroundColor: 'yellow',
+    },
+    btnGroup: {
+        width: 160,
+        height: 40,
+        marginTop: 20,
+        backgroundColor: 'red',
+    }
+})

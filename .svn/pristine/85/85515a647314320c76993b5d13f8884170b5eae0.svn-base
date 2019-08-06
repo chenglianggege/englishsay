@@ -1,0 +1,221 @@
+package com.RNSkegn;
+
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.util.Log;
+
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
+import com.tt.STRecorder;
+import com.tt.SkEgn;
+import com.tt.SkEgnManager;
+import com.tt.setting.EngineSetting;
+import com.tt.setting.RecordSetting;
+import com.tt.listener.OnInitEngineListener;
+import com.tt.listener.OnRecordListener;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.Promise;
+
+
+import com.facebook.react.bridge.ReadableMap;
+import com.tt.util.AiUtil;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
+
+public class RNSkegnModule extends ReactContextBaseJavaModule {
+    ReactApplicationContext context;
+    private STRecorder recorder;
+    private DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter;
+
+    public RNSkegnModule(ReactApplicationContext reactContext) {
+        super(reactContext);
+        this.context = reactContext;
+    }
+
+    @Override
+    public String getName() {
+        return "RNSkegn";
+    }
+
+    @ReactMethod
+    public void skegnNew(String appKey, String secretKey, final Callback callback) {
+
+        EngineSetting setting = EngineSetting.getInstance(this.context);
+        setting.setServerTimeout(60);
+        setting.setSDKLogEnabled(false);
+        setting.setOnInitEngineListener(new OnInitEngineListener() {
+            @Override
+            public void onStartInitEngine() {
+                
+            }
+
+            @Override
+            public void onInitEngineSuccess() {
+                callback.invoke("1");
+            }
+
+            @Override
+            public void onInitEngineFailed() {
+                callback.invoke("0");
+            }
+        });
+        SkEgnManager.getInstance(this.context).initCloudEngine(appKey, secretKey, "android", setting);
+    }
+
+    @ReactMethod
+    public void skegnSetUserId(String userId) {
+        SkEgnManager.getInstance(this.context).setUserId(userId);
+    }
+
+    @ReactMethod
+    public void skegnStart(ReadableMap parms, final Promise promise) {
+        String coreType = parms.hasKey("coreType") ? parms.getString("coreType") : "";
+        String refText = parms.hasKey("refText") ? parms.getString("refText") : "";
+
+        final RecordSetting setting;
+        if (coreType.equals("open.eval")){
+            int qType = parms.hasKey("qType") ? parms.getInt("qType") : 0;
+            setting = new RecordSetting(refText, qType);
+        }else{
+            setting = new RecordSetting(coreType, refText);
+        }
+
+        int attachAudioUrl = parms.hasKey("attachAudioUrl") ? parms.getInt("attachAudioUrl") : 1;
+        setting.setNeedAttachAudioUrlInResult(attachAudioUrl != 0);
+        int getParam = parms.hasKey("getParam") ? parms.getInt("getParam") : 1;
+        setting.setNeedRequestParamsInResult(getParam != 0);
+        int paragraph_need_word_score = parms.hasKey("paragraph_need_word_score") ? parms.getInt("paragraph_need_word_score") : 1;
+        setting.setNeedWordScoreInParagraph(paragraph_need_word_score != 0);
+        setting.setDict_type(parms.hasKey("dict_type") ? parms.getString("dict_type") : "KK");
+        int phoneme_output = parms.hasKey("phoneme_output") ? parms.getInt("phoneme_output") : 1;
+        setting.setNeedPhonemeOutputInWord(phoneme_output != 0);
+        setting.setAgegroup(parms.hasKey("agegroup") ? parms.getInt("agegroup") : 3);
+        setting.setSlack(parms.hasKey("slack") ? parms.getInt("slack") : 0);
+        setting.setKeywords(parms.hasKey("keywords") ? parms.getString("keywords") : "");
+        setting.setScale(parms.hasKey("scale") ? parms.getInt("scale") : 100);
+        setting.setPrecision(parms.hasKey("precision") ? parms.getDouble("precision") : 1);
+        setting.setRecordFilePath(parms.hasKey("recordFilePath") ? parms.getString("recordFilePath") : "");
+
+        if (parms.hasKey("userId") && !parms.getString("userId").isEmpty()){
+            SkEgnManager.getInstance(this.context).setUserId(parms.getString("userId"));
+        }
+
+        eventEmitter = this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+
+        OnRecordListener mOnRecordListener = new OnRecordListener() {
+            @Override
+            public void onRecordStart() {
+                //开始录制
+            }
+
+            @Override
+            public void onRecording(int vad_status, int sound_intensity) {
+                //录制中
+
+            }
+
+            @Override
+            public void onRecordEnd(String result) {
+                //录制结束
+                if (setting.getRecordFilePath().isEmpty()){
+                    eventEmitter.emit("onScore", result);
+                }else{
+                    promise.resolve(result);
+                }
+                //scoreCallback.invoke(result); //只能回调1次
+                //Log.e("onRecordEnd", "onRecordEnd===>" + result);
+            }
+        };
+        boolean ret = false;
+        if (parms.hasKey("recordFilePath") && !parms.getString("recordFilePath").isEmpty()){
+            ret = SkEgnManager.getInstance(this.context).existsAudioTrans(setting, mOnRecordListener);
+        }else {
+            ret = SkEgnManager.getInstance(this.context).startRecord(setting, mOnRecordListener);
+        }
+
+        if (!ret){
+            promise.reject("skegnStartFail", "startResult false");
+            return;
+        }
+        if (setting.getRecordFilePath().isEmpty()){
+            promise.resolve(null);
+        }
+    }
+
+    @ReactMethod
+    public void skegnStop() {
+         SkEgnManager.getInstance(this.context).stopRecord();
+    }
+
+    @ReactMethod
+    public void skegnDelete() {
+        SkEgnManager.getInstance(this.context).recycle();
+    }
+
+    @ReactMethod
+    public void skegnPlayBack() {
+        SkEgnManager.getInstance(this.context).playback();
+    }
+
+    @ReactMethod
+    public void startRecord(final Promise promise){
+        this.recorder = STRecorder.getInstance();
+        String recordFilePath = UUID.randomUUID().toString().replaceAll("-", "");
+        final String wavFile = "/" + recordFilePath + ".wav";
+        String wavPath = this.context.getFilesDir().getAbsolutePath() + wavFile;
+
+        //eventEmitter = this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+
+        this.recorder.start(wavPath, new STRecorder.Callback() {
+            public void onFrameRecorded(byte[] data, int size) {
+
+            }
+            public void onStop(String path){
+                //stopCallback.invoke(path);
+                //eventEmitter.emit("onRecordStop", path);
+
+            }
+            public void onError(String errMsg){
+                promise.reject("recording_failed", errMsg);
+                //errorCallback.invoke(errMsg);
+                //eventEmitter.emit("onRecordError", errMsg);
+            }
+            public void onStart(){
+                //eventEmitter.emit("onRecordStart", 1);
+                //startCallback.invoke(1);
+                promise.resolve(wavFile);
+            }
+        });
+    }
+    @ReactMethod
+    public void stopRecord(){
+        if (this.recorder != null) {
+            this.recorder.stop();
+        }
+        this.recorder = null;
+    }
+
+    @ReactMethod
+    public void checkInstall(String pkgName, final Promise promise){
+        PackageManager manager = this.context.getPackageManager();
+        List<PackageInfo> pkgList = manager.getInstalledPackages(0);
+        for (int i = 0; i < pkgList.size(); i++) {
+            PackageInfo pI = pkgList.get(i);
+            if (pI.packageName.equalsIgnoreCase(pkgName)){
+                promise.resolve(true);
+                return;
+            }
+
+        }
+        promise.resolve(false);
+    }
+
+}

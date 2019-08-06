@@ -1,0 +1,193 @@
+import React, { Component } from 'react';
+import {
+    View,
+    FlatList,
+    Image,
+    StyleSheet,
+    TouchableHighlight,
+    Platform,
+    Text,
+    DeviceEventEmitter,
+    Dimensions, Alert
+} from 'react-native'
+import {LoaderScreen, Dialog} from 'react-native-ui-lib';
+import RNFS from "react-native-fs";
+import { Button} from 'react-native-elements'
+import api from  './../../libs/serverApi'
+var Progress = require('react-native-progress');
+const {height, width} = Dimensions.get('window');
+
+
+export default class Download extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {downProcess: 0, showDialog: false}
+        this.dowonload_jobid = 0
+        this.dowonload_status = 0
+        this.dowonload_file = ''
+        this.exam = null
+    }
+    render () {
+        const {showDialog} = this.state
+        return (
+            <Dialog
+                width={270}
+                style={{justifyContent: 'center'}}
+                visible={showDialog}
+                overlayBackgroundColor='rgba(0,0,0,0.5)'
+                animationConfig={{animation: 'fadeIn', duration: 250}}
+                onDismiss={()=>{}}
+            >
+                {this._renderDownloadDialog()}
+            </Dialog>
+        )
+    }
+
+    async _cancelDown(success){
+        const {onFinish, onError} = this.props
+        this.dowonload_status = 0
+        if (this.dowonload_jobid) {
+            RNFS.stopDownload(this.dowonload_jobid)
+            this.dowonload_jobid = 0
+            try {
+                // 删除下载未完成的残留文件
+                await RNFS.unlink(this.dowonload_file);
+            }catch (e) {
+
+            }
+        }
+        this.setState({downProcess: 0, showDialog: false})
+        if (success){
+            onFinish(this.exam)
+        } else{
+            //点击下载 取消下载提示===》2019.6.27
+            //onError()
+        }
+
+    }
+
+
+    async startDown (exam) {
+        this.exam = exam
+        this.setState({downProcess: 0, showDialog: true})
+        const {onError, onFinish} = this.props
+        this.dowonload_status = 1
+        this.dowonload_jobid = 0
+        this.dowonload_file = ''
+
+        try {
+            let json_file = PAPER_BASE_PATH + exam.exam_id + '.json';
+            let exists = await RNFS.exists(json_file);
+            Log('RNFS.exists', json_file, exists)
+            if (exists){
+                this._cancelDown(true)
+                return
+            }
+            let paperData = await api.getExercisePaper(exam.exam_id)
+            if (paperData.retCode !== 0) {
+                this._cancelDown(false)
+                return
+            }
+            paperData = paperData.retData
+            let paper_assets = paperData.paper_info.paper_assets
+            let assets_list = Object.keys(paper_assets)
+            //console.log('paper_assets', assets_list)
+            let num = assets_list.length
+            let success_down_num = 0
+
+
+            for (let i in assets_list){
+                if (!this.dowonload_status){
+                    break;
+                }
+                let file_url = PAPER_STATIC_HOST + paper_assets[assets_list[i]]
+                let save_path = PAPER_BASE_PATH + assets_list[i]
+                let exists = await RNFS.exists(save_path);
+                //console.log("RNFS.exists", save_path, exists)
+                let fileSize = 0
+                if (exists){
+                    let file_stat = await RNFS.stat(save_path)
+                    fileSize = file_stat['size']
+                }
+                if (!exists || !fileSize) {
+                    let down_opt = {
+                        fromUrl: file_url,
+                        toFile: save_path,
+                    };
+                    //console.log('RNFS.downloadFile', i, down_opt)
+                    let download = RNFS.downloadFile(down_opt)
+                    this.dowonload_jobid = download.jobId
+                    this.dowonload_file = save_path
+                    let down_result = await download.promise
+                    console.log('RNFS.downloadFile', down_result)
+                    if (down_result.statusCode !== 200) {
+                        exists = await RNFS.exists(save_path);
+                        if (exists) {
+                            await RNFS.unlink(save_path);
+                        }
+                        this.setState({downProcess: 0, showDialog: false})
+                        return this._cancelDown(false)
+                    }
+                }
+
+                success_down_num ++
+                let process = success_down_num / num
+                this.setState({downProcess: process})
+
+            }
+            if (success_down_num === num){
+                RNFS.writeFile(json_file, JSON.stringify(paperData)).then(()=>{}).catch(e=>{
+                    Log("writeFile", json_file, e)
+                })
+                this.dowonload_jobid = 0
+                this._cancelDown(true)
+            }
+
+        }catch (e) {
+            console.log(e)
+            this._cancelDown(false)
+            /*
+            if (e.message === "Network request failed"){
+
+            }
+            */
+        }
+
+
+
+    }
+    _renderDownloadDialog() {
+        const {downProcess} = this.state
+        return (
+            <View style={{backgroundColor:"#fff", width: 270, height: 165, alignItems: 'center', borderRadius: 10}}>
+                <View style={{justifyContent:'center', alignItems:'center', height: 75}}>
+                    <Text style={{textAlign:'center', fontSize: 17, marginTop: 15}}>下载中{(downProcess * 100).toFixed(0)}%...</Text>
+                </View>
+                <View style={{justifyContent:'flex-start', alignItems:'center', height: 45}}>
+                    <Progress.Bar
+                        progress={downProcess}
+                        indeterminate={false}
+                        width={226}
+                        height={7}
+                        color="#30cc75"
+                        borderRadius={50}
+                        style={{marginTop: 8}}
+                        unfilledColor="#efefef"
+                        borderWidth={0}
+                        animated={false}
+                    />
+                </View>
+
+                <View style={{}}>
+                    <Button
+                        buttonStyle={{ width: 270, height: 45, borderWidth: 1, borderColor: "#efefef", backgroundColor: "#fff", borderBottomEndRadius: 10, borderBottomStartRadius: 10}}
+                        textStyle={{fontSize: 15, color: "#858585"}}
+                        title="取消下载"
+                        onPress={()=> this._cancelDown(true)}
+                    />
+                </View>
+                <View style={{height: 10, backgroundColor: "#fff", marginTop: 10}} />
+            </View>
+        );
+    }
+}

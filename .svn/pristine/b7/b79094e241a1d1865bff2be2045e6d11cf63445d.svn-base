@@ -1,0 +1,9 @@
+react-native-yunpeng-alipay
+react-native-idle
+修改android的 **Package.java
+
+react-native-sound
+169行AVAudioSessionCategoryOptionMixWithOthers改成
+AVAudioSessionCategoryOptionDefaultToSpeaker
+
+RCTWeChat 修改team

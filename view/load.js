@@ -1,0 +1,219 @@
+import React, { Component } from 'react';
+import {
+    StyleSheet,
+    Image,
+    View,
+    StatusBar, Dimensions,Platform,Alert, Linking, BackHandler
+} from 'react-native';
+import {
+    isFirstTime,
+    isRolledBack,
+    packageVersion,
+    currentVersion,
+    checkUpdate,
+    downloadUpdate,
+    switchVersion,
+    switchVersionLater,
+    markSuccess,
+} from 'react-native-update';
+import _updateConfig from './../update.json';
+import axios from "axios/index";
+import SplashScreen from 'react-native-splash-screen'
+import BaseComponent from "../libs/BaseComponent";
+
+const {appKey} = _updateConfig[Platform.OS];
+
+const {height, width} = Dimensions.get('window');
+const loadImages = [{
+    url: '',
+    props: {
+        source: require('../assets/load/yindao1.png')
+    }},{
+    url: '',
+    props: {
+        source: require('../assets/load/yindao2.png')
+    }},{
+    url: '',
+    props: {
+        source: require('../assets/load/yindao3.png')
+    }},
+]
+
+
+export default class Load extends BaseComponent {
+    static navigationOptions = ({navigation, screenProps}) => ({
+        header: null
+    });
+    constructor(props) {
+        super(props);
+        this.state = {loading:false, loadingStr: ''}
+    }
+    componentWillMount(){
+        
+        if (isFirstTime) {
+            markSuccess()
+        }
+    }
+    async componentDidMount() {
+        if (Platform.OS === 'ios'){
+            let appStoreVersion = packageVersion
+            try {
+                let appStore = await axios.get('https://itunes.apple.com/lookup?id=1410653213')
+                if (appStore.data.hasOwnProperty('resultCount') && appStore.data.resultCount) {
+                    appStoreVersion = appStore.data.results[0].version
+                }
+            }catch (e) {
+
+            }
+            await global.storage.save({key: 'appStoreVersion', data: appStoreVersion})
+            await global.storage.save({key: 'appStoreReview', data: packageVersion > appStoreVersion})
+        }else{
+            await global.storage.save({key: 'appStoreReview', data: false})
+        }
+        //return this._checkToken();
+        try {
+            //非第一次打开
+            await global.storage.load({key: packageVersion})
+            this._checkUpdate()
+            this._checkToken()
+        }catch (e) {
+            // 第一次打开
+            global.storage.save({key: packageVersion, data: '1'})
+            this._checkUpdate()
+            SplashScreen.hide();
+            this.props.navigation.replace('Launch')
+        }
+    }
+    async _checkUpdate(){
+        
+        let token = await global.storage.load({key: 'token'})
+        //是否提示升级
+        let isAskupdate = await axios.get(global.API_HOST + '/v2/software/update',{params: {token: token ,package_version:packageVersion ,system:Platform.OS}})
+        let ourAskupdata = isAskupdate.data.retData.is_update
+        
+        if (__DEV__){
+            return
+        }
+        let _this = this
+        checkUpdate(appKey).then(async info => {
+            console.log('checkUpdate', info)
+            // 已是最新版本
+            if (info.upToDate){
+                //_this._checkToken()
+                return
+            }
+            
+            if (info.expired === true && ourAskupdata === 0){
+                //_this._checkToken()
+                return
+            }
+            // 有大版本更新
+            if (info.expired === true && ourAskupdata === 1) {
+                if (Platform.OS === 'ios' && await global.storage.load({key: 'appStoreReview'})){
+                    return;
+                }
+                
+                Alert.alert('新版本提示', '发现新版本！请点击“好”前往下载，不及时更新会影响使用哦~',
+                    [
+                        {
+                            text: '好',
+                            onPress: ()=>{
+                                toUpdate(info.downloadUrl)
+                                BaseComponent.screen.nav().push('Update', {url: info.downloadUrl})
+                            }
+                        }
+                    ],{ cancelable: false })
+            }
+            // 有热更新
+            if (info.update === true && ourAskupdata === 1) {
+                this._doUpdate(info)
+            }
+        }).catch(err => {
+
+        });
+    }
+    async _checkToken(){
+        try {
+            let token = await global.storage.load({key: 'token'})
+            
+            if (token){
+                let userInfo = await axios.get(global.API_HOST + '/v2/student/info',{params: {token: token},timeout: 500})
+                if (userInfo.data.retCode === 0) {
+                    userInfo = userInfo.data.retData
+                    //global.USERINFO = userInfo
+                    await global.storage.save({key: 'userInfo', data: userInfo})
+                    // 只要绑定过卡的用户都可以跳到首页
+                    if (userInfo.study_card && userInfo.study_card.hasOwnProperty('card_setting')){
+                        let agent_info = await axios.get(API_HOST + '/v2/user/info/agent')
+                        if (agent_info.data.retCode === 0) {
+                            agent_info = agent_info.data.retData
+                            await global.storage.save({key: 'agentInfo', data: agent_info})
+                        }
+                        let card_setting = JSON.parse(userInfo.study_card.card_setting)
+                        let card_cardtype = JSON.parse(userInfo.study_card.card_type)
+                        if (card_cardtype === 3) {
+                            return this.props.navigation.replace('ExperienceVersion')
+                        }
+                        if (card_setting.hasOwnProperty('module_type') && +card_setting.module_type === 1) {
+                            return this.props.navigation.replace('Main')
+                        }
+                        if (card_setting.hasOwnProperty('module_type') && +card_setting.module_type === 2) {
+                            return this.props.navigation.replace('Main2')
+                        }
+                    }
+                    this.props.navigation.replace('Login')
+                }else{
+                    this.props.navigation.replace('Login',{kickass: true})
+                }
+            }else {
+                this.props.navigation.replace('Login')
+            }
+
+        }catch (e) {
+            //LogServer('LOAD_EXCEPTION', e)
+            this.props.navigation.replace('Login')
+        }finally {
+            SplashScreen.hide();
+        }
+    }
+    _doUpdate(info){
+        if (info.metaInfo === 'no'){
+            return
+        }
+        downloadUpdate(info).then(hash => {
+            // 开始更新
+            Alert.alert('提示', '英语说上新啦，请点击“确认”开始更新，不及时更新会影响使用哦~',
+                [
+                    {text: '确认', onPress: ()=>{switchVersion(hash);}}
+                ],{ cancelable: false })
+        }).catch(err => {
+            LogServer('AUTO_DO_UPDATE_ERROR', err)
+        });
+    }
+    render() {
+        return null
+        if (Platform.OS === 'ios'){
+            return (
+                <View style={{flex: 1, backgroundColor: "#fff"}}>
+                    <StatusBar translucent={true} backgroundColor='transparent' barStyle="dark-content"/>
+                </View>
+            );
+        }
+        return (
+            <View style={{flex: 1, backgroundColor: "#fff"}}>
+                <StatusBar translucent={true} backgroundColor='transparent' barStyle="dark-content"/>
+                <Image resizeMode="stretch" style={[styles.load]} source={require('./../assets/load/LanuchImage.png')} />
+            </View>
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+    load: {
+        flex: 1,
+        alignItems:'center',
+        justifyContent:'center',
+        width: width,
+        height: height
+    }
+});

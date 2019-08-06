@@ -1,0 +1,324 @@
+import React, { Component } from 'react';
+import {
+    View, Text, StyleSheet, Image, Platform, TouchableOpacity, DeviceEventEmitter, Alert, NativeEventEmitter
+} from 'react-native';
+import * as Progress from 'react-native-progress';
+import Sound from 'react-native-sound';
+import RNFS from 'react-native-fs';
+
+
+export default class SubBar extends Component {
+    constructor(props) {
+        super(props);
+        console.log('22as12ad12a12dsa1111',this.props)
+        this.state = {process: 0, isProcess: false, barTitle1: '请看题...', barTitle2: '', recording: false, canJump: true}
+        this.isBusy = false
+        this.canJumpRecord = false
+        this.sound = null
+        this._isPause = false
+        this._isPlaying = false
+        this._isRecording = false
+
+    }
+    componentDidMount() {
+        //const eventEmitter = new NativeEventEmitter(Recorder)
+        this._isMounted = true
+        this.deEmitter = DeviceEventEmitter.addListener('PauseExam',async ()=>{
+            console.log('get PauseExam event ')
+            this.pause()
+        });
+        this.audioPath = ""
+        //this.onRecordEndEmitter = eventEmitter.addListener('onRecordEnd', (result) =>this._onRecordEnd(result));
+    }
+    componentWillUnmount(){
+        this.deEmitter.remove();
+        //this.onRecordEndEmitter.remove();
+        this._isMounted = false
+        clearInterval(this.animation)
+        const {isProcess} = this.state
+        if (isProcess) {
+            this.setState({isProcess: false,recording: false})
+        }
+        //sound.stop()
+        if (this.sound){
+            this.sound.release()
+            console.log('componentWillUnmount', 'this.sound.release()')
+        }
+        //Recorder.skegnStop()
+        Recorder.stopRecord()
+    }
+
+    play(audioUrl){
+        console.log('play audioUrl', audioUrl)
+        let _this = this
+        return new Promise(async (resolve, reject) => {
+            await _this.setState({process: 0,barTitle1: '正在播放音频...',barTitle2: '加载音频中...'})
+            _this.isBusy = true
+            _this.setState({canJump: false})
+            _this._isPlaying = true
+            Sound.setCategory('Playback');
+            //LogServer('audioUrl Url',audioUrl)
+            let file_name = audioUrl.substring(audioUrl.lastIndexOf("/")+1);
+            let file_path = PAPER_BASE_PATH + file_name
+            let exists = await RNFS.exists(file_path)
+            if (!exists){
+                file_path = PAPER_STATIC_HOST + audioUrl
+            }else{
+                let file_stat = await RNFS.stat(file_path)
+                if (!file_stat['size']) {
+                    file_path = PAPER_STATIC_HOST + audioUrl
+                }
+            }
+
+            //console.log('await RNFS.stat(file_path)', await RNFS.stat(file_path))
+            //LogServer('file_path',file_path)
+
+            let sound = new Sound(file_path, '', async (error) => {
+                //console.log('load the sound', error);
+                _this.isBusy = false
+                _this.setState({canJump: true})
+                if (error) {
+                    console.log('failed to load the sound', error);
+                    LogServer('PLAY_ERROR', file_path)
+                    return resolve();
+                }
+                // loaded successfully
+                //LogServer('audio duration',sound.getDuration())
+                if (!_this._isMounted){
+                    return resolve();
+                }
+                await _this.setState({isProcess: true, process: 0})
+                let duration = sound.getDuration()
+                _this._process(duration,function (seconds) {
+                    if (seconds === false){
+                        _this._isPlaying = false
+                        sound.release()
+                        return resolve();
+                    }
+                    _this.setState({barTitle1: '正在播放音频...',barTitle2: '倒计时' + (parseInt(duration) - parseInt(seconds))  + '秒'})
+                })
+                sound.play((success) => {
+                    Log('player' , file_path ,success)
+                    sound.release()
+                });
+            });
+            //console.log('sound',sound)
+            this.sound = sound
+        })
+
+    }
+
+    record (duration) {
+        const {isProcess} = this.state
+        let _this = this
+        return new Promise((resolve, reject) => {
+            _this.isBusy = true
+            _this.setState({canJump: false})
+            _this.onScoreResolve = resolve
+            _this.setState({barTitle1: '准备录音...',barTitle2: ''})
+            Sound.setCategory('Playback');
+            let sound = new Sound('ding.mp3', Sound.MAIN_BUNDLE, (error)=>{
+                sound.play(async () => {
+                    sound.release()
+                    _this.setState({barTitle1: '正在录音，请答题...',barTitle2: '倒计时' + parseInt(duration)  + '秒'})
+                    _this.isBusy = false
+                    _this.canJumpRecord = false
+                    _this._isRecording = true
+                    //开始录音
+                    Sound.setCategory('PlayAndRecord');
+                    try {
+                        _this.audioPath = await Recorder.startRecord()
+                        console.log('path', _this.audioPath)
+                    }catch (e) {
+                        _this._isRecording = false
+                        _this.canJumpRecord = true
+                        _this.setState({canJump: true})
+                        Recorder.stopRecord()
+                        LogServer('RECORD_START_ERROR', e.message)
+                        return reject(new Error('RECORD_START_ERROR'));
+                    }
+                    if (!_this._isMounted) return reject();
+
+                    //设置跳过限制
+                    setTimeout(function () {
+                        if (!_this._isMounted){
+                            return
+                        }
+                        _this.canJumpRecord = true
+                        _this.setState({canJump: true})
+                    },1000)
+
+                    // 走进度条
+                    _this.setState({isProcess: true, process: 0, recording: true})
+                    _this._process(duration,function (seconds) {
+                        if (!_this._isMounted){
+                            Recorder.stopRecord()
+                            return reject();
+                        }
+                        //计时结束
+                        if (seconds === false) {
+                            Recorder.stopRecord()
+                            _this._onRecordEnd()
+                            //resolve(path)
+                            //_this.setState({recording: false, barTitle1: '答题完成', barTitle2: '正在评分，请稍后...'})
+                            return
+                        }
+                        //计时中
+                        if (_this.state.recording){
+                            _this.setState({barTitle1: '正在录音，请答题...',barTitle2: '倒计时' + (parseInt(duration) - parseInt(seconds))  + '秒'})
+                        }
+                    })
+
+                });
+            });
+        })
+    }
+
+
+    _onRecordEnd () {
+        if (!this._isMounted){
+            return
+        }
+        this._isRecording = false
+        this.isBusy = false
+        this.setState({isProcess: false, recording: false})
+        clearInterval(this.animation)
+        this.onScoreResolve(this.audioPath);
+    }
+
+    async _process (processSeconds, cb) {
+        let _this = this
+        let now = 0
+        let animation = setInterval(function () {
+            if (_this._isMounted && !_this._isPause) {
+                now = now + 0.1
+                let isProcess = _this.state.isProcess
+                if (now > processSeconds) {
+                    isProcess = false
+                    if (_this._isMounted) {
+                        _this.setState({isProcess: isProcess})
+                    }
+                }
+                _this.isBusy = true
+                if (isProcess) {
+                    if (_this._isMounted) {
+                        _this.setState({process: now / processSeconds})
+                    }
+                    cb(now)
+                }else{
+                    if (_this._isMounted) {
+                        _this.setState({process: now / processSeconds})
+                    }
+                    cb(false)
+                    clearInterval(animation)
+                    console.log('clearInterval',animation)
+                }
+                _this.isBusy = false
+            }
+        },100)
+        this.animation = animation
+        console.log('setInterval', this.animation)
+    }
+    wait(waitSecond, waitTitle){
+        let _this = this
+        console.log('wait waitSecond', waitSecond)
+        return new Promise(async (ret,rej)=>{
+            _this.setState({barTitle1: waitTitle,barTitle2: '倒计时' + (parseInt(waitSecond))  + '秒'})
+            await _this.setState({isProcess: true, process: 0})
+            _this._process(waitSecond,function (seconds) {
+                // console.log('seconds', seconds)
+                if (seconds === false) {
+                    ret();return
+                }
+                _this.setState({barTitle1: waitTitle,barTitle2: '倒计时' + (parseInt(waitSecond) - parseInt(seconds))  + '秒'})
+            })
+        })
+    }
+    pause(){
+        console.log('this._isMounted', this._isMounted)
+        if (!this._isMounted || !this.state.isProcess){
+            return
+        }
+        // 录音中不能暂停
+        if (this.state.recording || this._isRecording){
+            Alert.alert('暂停','录音答题过程中不能暂停',[
+                {text: '知道了', style: 'cancel'},
+            ])
+            return
+        }
+        // 暂停中，恢复
+        if (this._isPause){
+            //当前在播放状态，则恢复播放
+            if (this._isPlaying){
+                this.sound.play()
+            }
+        }
+        // 未暂停，暂停
+        if (!this._isPause){
+            //当前在播放状态，则暂停播放
+            if (this._isPlaying){
+                this.sound.pause()
+            }
+        }
+        this._isPause = !this._isPause
+        if (this._isPause){
+            Alert.alert('暂停','暂停答题中',[
+                {text: '继续答题', onPress: () => this.pause()},
+            ])
+        }
+    }
+
+    async _jump () {
+
+        const {isProcess, recording} = this.state
+        console.log('jump', isProcess, this.isBusy)
+        // 禁止跳过状态
+        if (this.isBusy) {
+            return
+        }
+        // 未到达可跳过时间
+        if (recording && ! this.canJumpRecord) {
+            return
+        }
+        if (isProcess) {
+            if (this.sound) {
+                this.sound.release()
+            }
+            if (this._isRecording) {
+                Recorder.stopRecord()
+                this._onRecordEnd()
+            }
+            this.setState({isProcess: false, process: 0, recording: false})
+        }
+    }
+
+    render() {
+        const {process, barTitle1, barTitle2, recording, canJump} = this.state
+        return (
+            <View style={{backgroundColor: "#f6f6f6", flexDirection:'row'}}>
+                <View style={{flex: 4,alignItems: 'center', justifyContent:'center'}}>
+                    <Text style={{color:"#898787", fontSize:16}}>{barTitle1}</Text>
+                    <Progress.Bar
+                        progress={process}
+                        height={5}
+                        width={250}
+                        color="#30cc75"
+                        borderRadius={2}
+                        style={{marginTop: 8, marginLeft: 7,height:5, marginRight: 7}}
+                        unfilledColor="#ebebeb"
+                        borderColor="#30cc75"
+                        borderWidth={0}
+                        animated={false}
+                    />
+                    <Text style={{color:"#bdbdbd", fontSize:12}}>{barTitle2}</Text>
+                </View>
+                <View style={{flex: 1,justifyContent: 'center',alignItems:'center',borderLeftColor:"#ebebeb", borderLeftWidth:1}}>
+                    <TouchableOpacity onPress={()=>this._jump()}>
+                        <Image style={{width: 46, height: 46}} source={canJump ? require('./../../assets/exam/ic_pass_step.png') : require('./../../assets/exam/ic_pass_step_disable.png')}/>
+                        <Text style={{textAlign: 'center', color: canJump ? "#30cc75" : "#aaaaaa"}}>{recording ? '完成' : '跳过'}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        )
+    }
+}

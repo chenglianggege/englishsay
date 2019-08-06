@@ -1,0 +1,12 @@
+PODS:
+  - UMengAnalytics (4.2.4)
+
+DEPENDENCIES:
+  - UMengAnalytics (= 4.2.4)
+
+SPEC CHECKSUMS:
+  UMengAnalytics: ef8d45f94c0e5771dc364cf6a5731d9d3b101da2
+
+PODFILE CHECKSUM: 084fb1a28e5b75cac22da7ad78d665bfa719747f
+
+COCOAPODS: 1.4.0.beta.2

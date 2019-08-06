@@ -1,0 +1,7 @@
+platform :ios, '8.0'
+target 'studentRnProject' do
+  pod 'UMengAnalytics' , '4.2.4'
+
+  pod 'react-native-camera', :path => '../node_modules/react-native-camera'
+
+end

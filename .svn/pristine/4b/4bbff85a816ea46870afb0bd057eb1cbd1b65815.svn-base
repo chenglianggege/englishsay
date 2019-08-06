@@ -1,0 +1,195 @@
+import React, { Component } from 'react';
+import {
+    View,
+    Image,
+    TouchableOpacity, Dimensions,Text,ScrollView
+} from 'react-native';
+import {Dialog, LoaderScreen} from 'react-native-ui-lib';
+import { Icon } from 'react-native-elements'
+import axios from "axios/index";
+import Sound from 'react-native-sound';
+
+const {height, width} = Dimensions.get('window');
+
+export default class WordDialog extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {show: false, wordContent: null, loading: true, score: 0, word: '', en_playing: false, am_playing: false}
+    }
+
+    render(){
+        const {show} = this.state
+        if (!show){
+            return null
+        }
+        return (
+            <Dialog width={width}  height={height}   visible={show} overlayBackgroundColor='rgba(0,0,0,0.5)' containerStyle={{backgroundColor: "#ffffff"}} onDismiss={() => this.hide()}>
+                <TouchableOpacity onPress={() => this.hide()} style={{flex: 1}} />
+                <View style={{backgroundColor: "#ffffff", width: width ,height: 375, borderTopLeftRadius: 5, borderTopRightRadius: 5}}>
+                    <View style={{height: 44, borderStyle: "solid", borderWidth: 1, borderColor: "#efefef", justifyContent: "center", alignItems: "center"}}>
+                        <Text>单词释义</Text>
+                    </View>
+                    <Icon name='close' containerStyle={{position: "absolute", alignSelf:'flex-end', marginTop: 10, right: 10}} onPress={() => this.hide()} />
+                    {this._renderWord()}
+                </View>
+            </Dialog>
+        )
+    }
+    componentWillUnmount(){
+        if (this.sound){
+            this.sound.release()
+        }
+    }
+
+    _renderWord(){
+        const {show, loading, wordContent, score, word, en_playing, am_playing} = this.state
+        if (!show){
+            return null
+        }
+        if (loading) {
+            return <LoaderScreen overlay/>
+        }
+        let symbol = wordContent ? wordContent.symbols[0] : {}
+        return (
+            <View style={{marginLeft: 30, marginTop: 20,width: width - 60, flex: 1}}>
+                <View style={{flexDirection: 'row', alignItems: "flex-end"}}>
+                    <Text style={{fontSize: 30,color: "#353535", lineHeight: 30}}>{word.charAt(word.length-1) === '-' ? word.substring(0,word.length-1) : word}</Text>
+                    <Text style={{fontSize: 14,color: "#858585", marginLeft: 10, marginRight: 5, lineHeight: 25}}>得分：</Text>
+                    {score < 30 ? <Text style={{fontSize: 14, color: "#f44116", lineHeight: 25}}>{score.toFixed(1)}</Text> : null}
+                    {score >= 30 && score < 60 ? <Text style={{fontSize: 14, color: "#ff8414", lineHeight: 25}}>{score.toFixed(1)}</Text> : null}
+                    {score >= 60 && score < 75 ? <Text style={{fontSize: 14, color: "#1394fa", lineHeight: 25}}>{score.toFixed(1)}</Text> : null}
+                    {score > 75 ? <Text style={{fontSize: 14, color: "#41b612", lineHeight: 25}}>{score.toFixed(1)}</Text> : null}
+                </View>
+                <View style={{flex: 1}}>
+                    {!wordContent ?
+                        <View style={{flex: 1, alignItems:"center", justifyContent:"center"}}>
+                            <Text style={{fontSize: 14,color: "#858585", textAlign: "center", alignSelf:"center"}}>暂无释义</Text>
+                        </View> : null
+                    }
+                    {wordContent ?
+                        <ScrollView style={{}}>
+                            <View style={{marginTop: 15, flexDirection: "row"}}>
+                                {symbol.hasOwnProperty('ph_en') && symbol.ph_en.length > 0 ?
+                                    <TouchableOpacity  onPress={()=> this._play(symbol.ph_en_mp3, 1, symbol.ph_tts_mp3)}>
+                                        <View style={{flexDirection: "row", alignItems:"center"}}>
+                                            <Text style={{fontSize: 14, color: "#858585"}}>英[{symbol.ph_en}]</Text>
+                                            <Image source={en_playing ? require('./../../assets/common/play_main.gif') : require('./../../assets/common/defenlaba.png')}
+                                                   style={{width: 12, height: 11, marginLeft: 5}}/>
+                                        </View>
+                                    </TouchableOpacity>
+                                    :
+                                    <TouchableOpacity  onPress={()=> this._play(symbol.ph_tts_mp3, 1, symbol.ph_tts_mp3)}>
+                                        <View style={{flexDirection: "row", alignItems:"center"}}>
+                                            <Text style={{fontSize: 14, color: "#858585"}}>{symbol.ph_other.length ? '[' + symbol.ph_other.substr(24) + ']' : ''}</Text>
+                                            <Image source={en_playing ? require('./../../assets/common/play_main.gif') : require('./../../assets/common/defenlaba.png')}
+                                                   style={{width: 12, height: 11, marginLeft: 5}}/>
+                                        </View>
+                                    </TouchableOpacity>
+                                }
+                                {symbol.hasOwnProperty('ph_am') && symbol.ph_am.length > 0 ?
+                                    <TouchableOpacity  onPress={()=> this._play(symbol.ph_am_mp3, 2, symbol.ph_tts_mp3)} style={{marginLeft: 15}}>
+                                        <View style={{flexDirection: "row", alignItems:"center"}}>
+                                            <Text style={{fontSize: 14, color: "#858585"}}>美[{symbol.ph_am}]</Text>
+                                            <Image source={am_playing ? require('./../../assets/common/play_main.gif') : require('./../../assets/common/defenlaba.png')}
+                                                   style={{width: 12, height: 11, marginLeft: 5}}/>
+                                        </View>
+                                    </TouchableOpacity>
+                                        : null}
+
+                            </View>
+                            <View style={{marginTop: 15}}>
+                                {symbol.parts.map((part, idx) => {
+                                    return (
+                                        <View key={idx}>
+                                            <Text style={{
+                                                fontSize: 14,
+                                                lineHeight: 21,
+                                                color: "#353535"
+                                            }}>{part.part} {part.means.join(';')}</Text>
+                                        </View>
+                                    )
+                                })}
+                            </View>
+                            <View style={{
+                                marginTop: 15,
+                                borderStyle: "solid",
+                                borderTopWidth: 1,
+                                borderTopColor: "#efefef"
+                            }}>
+                                <Text style={{
+                                    fontSize: 12,
+                                    lineHeight: 24,
+                                    color: "#858585",
+                                }}>释义内容来自金山词霸</Text>
+                            </View>
+                        </ScrollView> : null
+                    }
+                </View>
+            </View>
+        )
+    }
+    show(word, score){
+        word = word.trim()
+        if (!word.length){
+            return
+        }
+        word = word.substr(0, word.length - 1) + word.substr(-1).replace(/\.|\,|\?|\!|\;|\\|\"|\}|\{|\:|\*|/g, "")
+        this.setState({show: true, score: score, word: word})
+        this.loadWord(word)
+    }
+    hide(){
+        this.setState({show: false, wordContent: null})
+    }
+
+    async loadWord(word){
+        //const {word} = this.state
+        wordreal = word.charAt(word.length-1) === '-' ? word.substring(0,word.length-1) : word
+        try {
+            this.setState({ loading: true})
+            let wordContent = await axios.get(global.API_HOST + '/v2/translate',{
+                params: {
+                    w: wordreal
+                }
+            })
+            console.log(wordContent.data.retData)
+            if (wordContent.data.retCode === 0 && wordContent.data.retData  && wordContent.data.retData.hasOwnProperty('word_name')){
+                return this.setState({wordContent: wordContent.data.retData})
+            }
+            return this.setState({wordContent: null})
+
+        }catch (e) {
+            console.log(e)
+            this.setState({ loading: false})
+        }finally {
+            this.setState({ loading: false})
+        }
+    }
+    _play(url, type, tts_url){
+        if (this.sound){
+            this.sound.release()
+        }
+        if (!url){
+            url = tts_url
+        }
+        if (!url){
+            return
+        }
+        console.log('url', url)
+        url = 'https' + url.substr(4)
+        console.log('url', url)
+        let _this = this
+        this.setState({en_playing: +type === 1, am_playing: +type === 2})
+        Sound.setCategory('Playback');
+        let sound = new Sound(url, '', async (error) => {
+            console.log('error', error)
+            if (error){
+                return _this.setState({en_playing: false, am_playing: false})
+            }
+            sound.play((success) => {
+                _this.setState({en_playing: false, am_playing: false})
+                sound.release()
+            });
+        });
+        this.sound = sound
+    }
+}

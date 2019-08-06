@@ -1,0 +1,10 @@
+platform :ios, '8.0'
+target 'studentRnProject' do
+  pod 'UMengAnalytics' , '4.2.4'
+
+
+  pod 'react-native-video', :path => '../node_modules/react-native-video'
+
+  pod 'RCTSystemSetting', :path => '../node_modules/react-native-system-setting'
+
+end

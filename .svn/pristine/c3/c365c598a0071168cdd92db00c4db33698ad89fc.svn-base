@@ -1,0 +1,46 @@
+{
+  "name": "studentRnProject",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "log-android": "node node_modules/react-native/local-cli/cli.js log-android",
+    "test": "jest"
+  },
+  "dependencies": {
+    "add": "^2.0.6",
+    "axios": "^0.18.0",
+    "lottie-react-native": "^2.5.9",
+    "prop-types": "^15.6.2",
+    "react": "16.3.1",
+    "react-native": "0.55.4",
+    "react-native-camera": "^1.8.0",
+    "react-native-device-info": "2.1.2",
+    "react-native-easy-toast": "^1.1.0",
+    "react-native-elements": "^0.19.1",
+    "react-native-fs": "^2.11.15",
+    "react-native-image-picker": "^0.26.10",
+    "react-native-image-zoom-viewer": "^2.2.15",
+    "react-native-progress": "^3.5.0",
+    "react-native-sound": "^0.10.9",
+    "react-native-splash-screen": "^3.1.1",
+    "react-native-storage": "^0.2.2",
+    "react-native-system-setting": "^1.7.2",
+    "react-native-ui-lib": "^3.3.188",
+    "react-native-update": "^5.1.1",
+    "react-native-vector-icons": "^4.6.0",
+    "react-native-video": "^3.2.1",
+    "react-native-wechat": "^1.9.10",
+    "react-native-yunpeng-alipay": "^2.0.0",
+    "react-navigation": "^2.18.2"
+  },
+  "devDependencies": {
+    "babel-jest": "23.4.2",
+    "babel-preset-react-native": "4.0.0",
+    "jest": "23.4.2",
+    "react-test-renderer": "16.3.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}

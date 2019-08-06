@@ -1,0 +1,246 @@
+import React, { Component } from 'react';
+import {
+    View, Text, StyleSheet, Image, Platform, TouchableOpacity, Dimensions
+} from 'react-native';
+import * as Progress from 'react-native-progress';
+import Sound from 'react-native-sound';
+import Toast, {DURATION} from 'react-native-easy-toast'
+import RNFS from 'react-native-fs';
+
+const {height, width} = Dimensions.get('window');
+
+export default class ReadQuestion extends Component {
+    constructor(props) {
+        super(props);
+        const {question} = this.props
+        this.state = {play_process: 0,readSecond: 15, duration: 0, playAudio: question.source_content || question.qs_type === '1901' ? true : false,playAudio1901: question.qs_type === '1901' ? true : false, isBusy: false}
+    }
+    componentDidMount() {
+        this._isMounted = true
+        this.isBusy = false
+        this.sound = null
+        this.readTimer = 0
+        this.checkTimer = 0
+        this._playing()
+    }
+    componentWillUnmount(){
+        this._isMounted = false
+        if (this.sound){
+            this.sound.release()
+        }
+        clearInterval(this.readTimer)
+        clearInterval(this.checkTimer)
+    }
+
+    _reading () {
+        //const {onRead} = this.props
+        //this._process(this.state.readSecond)
+        /*
+        let _this = this
+        let readTimer = setInterval(function () {
+            if (_this._isMounted){
+                let readSecond = _this.state.readSecond - 1
+                _this.setState({readSecond: readSecond, play_process: now / processSeconds})
+                if (_this.state.readSecond <= 0) {
+                    clearInterval(readTimer)
+                    onRead()
+                }
+            }
+        }, 1000)
+        this.readTimer = readTimer
+        */
+    }
+    async _playing () {
+        const {question, onRead} = this.props
+        const {playAudio ,playAudio1901} = this.state
+        let _this = this
+        
+        // 有题目音频->播放器自动播放
+        if (playAudio || playAudio1901) {
+            _this.isBusy = true
+            _this.setState({isBusy: true})
+
+            Sound.setCategory('Playback');
+            _this._checkLoading()
+            let audioUrl = playAudio1901 ? JSON.parse(question.info[0].info_content)[0].audio:question.source_content
+            //LogServer('audioUrl Url',audioUrl)
+            let file_name = audioUrl.substring(audioUrl.lastIndexOf("/")+1);
+            let file_path = PAPER_BASE_PATH + file_name
+            let exists = await RNFS.exists(file_path)
+            if (!exists){
+                file_path = PAPER_STATIC_HOST + audioUrl
+            }
+            //LogServer('file_path',file_path)
+            
+                let sound = new Sound(file_path, '', async (error) => {
+                    clearInterval(_this.checkTimer)
+                    _this.isBusy = false
+                    _this.setState({isBusy: false})
+                    if (error) {
+                        console.log('failed to load the sound', error);
+                        _this.refs.toast.show('加载音频失败，请检查网络~~');
+                        //_this._reading() //加载音频失败->学生自己读题
+                        return;
+                    }
+                    if(playAudio1901){
+                        _this._process(sound.getDuration(),false)
+                    }else{
+                        _this._process(sound.getDuration(),true)
+                    }
+                    
+                    sound.play((success) => {
+                        sound.release()
+                    });
+                });
+                this.sound = sound
+            
+            
+            return ;
+        }
+
+        //无题目音频->学生自己读题
+        //this._reading()
+    }
+    async _playingNext () {
+        const {question, onRead} = this.props
+        const {playAudio ,playAudio1901} = this.state
+        let _this = this
+        
+        // 有题目音频->播放器自动播放
+        if (playAudio || playAudio1901) {
+            _this.isBusy = true
+            _this.setState({isBusy: true})
+
+            Sound.setCategory('Playback');
+            _this._checkLoading()
+            
+            let audioUrl2 = JSON.parse(question.info[0].info_content)[1].audio ? JSON.parse(question.info[0].info_content)[1].audio:null
+
+
+            if(audioUrl2){
+                let file_name2 = audioUrl2.substring(audioUrl2.lastIndexOf("/")+1);
+                let file_path2 = PAPER_BASE_PATH + file_name2
+                let exists2 = await RNFS.exists(file_path2)
+                if (!exists2){
+                    file_path2 = PAPER_STATIC_HOST + audioUrl2
+                }
+                let sound = new Sound(file_path2, '', async (error) => {
+                    clearInterval(_this.checkTimer)
+                    _this.isBusy = false
+                    _this.setState({isBusy: false})
+                    if (error) {
+                        console.log('failed to load the sound', error);
+                        _this.refs.toast.show('加载音频失败，请检查网络~~');
+                        return;
+                    }
+                    _this._process(sound.getDuration(),true)
+                    sound.play((success) => {
+                        sound.release()
+                    });
+                });
+                this.sound = sound
+            }
+            
+            return ;
+        }
+
+        //无题目音频->学生自己读题
+        //this._reading()
+    }
+    _process (processSeconds,needNext) {
+        let _this = this
+        let now = 0
+        console.log(processSeconds)
+        const {onRead} = this.props
+        let readTimer = setInterval(function () {
+            if (_this._isMounted) {
+                now = now + 0.1
+                _this.setState({play_process: now / processSeconds})
+                if (now >= processSeconds) {
+                    clearInterval(readTimer)
+                    if(needNext){
+                        onRead()
+                    }else{
+                        _this._playingNext()
+                    }
+                    
+                }
+            }
+        }, 100)
+        this.readTimer = readTimer
+
+    }
+    _checkLoading(){
+        let n = 0
+        let _this = this
+        let checkTimer = setInterval(()=>{
+            n++
+            if (n >= 5){
+                _this.refs.toast.show('您的网络异常，请更换网络环境再开始答题', 2000);
+                clearInterval(checkTimer)
+            }
+        }, 1000)
+        _this.checkTimer = checkTimer
+    }
+    render () {
+        const {question, onRead} = this.props
+        const {play_process, readSecond,playAudio} = this.state
+        return (
+            <View style={{flex: 1,backgroundColor:"#fff", height: '100%'}}>
+                <View style={{flex: 5}}>
+                    <View style={{height: 40, justifyContent: 'center'}}><Text numberOfLines={1} style={styles.titleText}>{question.qs_title}</Text></View>
+                    <View style={styles.underLine}/>
+                    {playAudio ?
+                        <View style={{marginLeft:15, marginTop: 14, flexDirection: 'row'}}>
+                            <Image style={{width: 24,height: 20}} source={require('./../../assets/exam/ic_title_green.png')}/>
+                            <Progress.Bar
+                                progress={play_process}
+                                width={width - 80}
+                                height={3}
+                                color="#30cc75"
+                                borderRadius={2}
+                                style={{marginTop: 8, marginLeft: 7, height:3}}
+                                unfilledColor="#f5f5f5"
+                                borderColor="#30cc75"
+                                borderWidth={0}
+                            />
+                        </View>
+                        :
+                        null
+                    }
+                    <Text style={[styles.titleText,{marginTop: 10, paddingRight: 15}]}>{question.qs_type === '1901' ? JSON.parse(question.info[0].info_content)[0].text : question.qs_content}</Text>
+                    <Text style={[styles.titleText,{marginTop: 10, paddingRight: 15}]}>{question.qs_type === '1901' ? JSON.parse(question.info[0].info_content)[1].text : ''}</Text>
+                </View>
+                <View style={{flex: 1}}>
+                    <View style={{justifyContent: 'center',alignItems:'center'}}>
+                        <TouchableOpacity onPress={()=>this._jump()} style={{justifyContent: 'center',alignItems:'center'}}>
+                            <Image style={{width: 46, height: 46}} source={this.state.isBusy ? require('./../../assets/exam/ic_pass_step_disable.png') : require('./../../assets/exam/ic_pass_step.png')}/>
+                            <Text style={{textAlign: 'center', color: this.state.isBusy ? "#aaaaaa" :"#30cc75"}}>{this.state.isBusy ? '加载音频中' : '跳过'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <Toast ref="toast" position="center"/>
+
+            </View>
+        )
+    }
+    _jump () {
+        const {onRead} = this.props
+        if (!this.isBusy) {
+            onRead()
+        }
+    }
+
+}
+const styles = StyleSheet.create({
+    titleText: {
+        fontSize: 16,
+        color: "#898787",
+        marginLeft:15,
+        lineHeight: 26
+    },
+    underLine: {
+        backgroundColor: "#f3f0f0",
+        height: 1
+    }
+})
