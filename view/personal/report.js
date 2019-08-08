@@ -174,6 +174,7 @@ export default class Report extends BaseComponent {
                     let res = await axios.post(API_HOST + '/v2/upload-file/image', formdata, {'Content-Type': 'application/x-www-form-urlencoded'})
                     console.log(res.data)
                     if (res.data.retCode === 4001) {
+                        console.log('report login')
                         _this.props.navigation.navigate({routeName: 'Login', params: {kickass: true}});
                         return
                     }

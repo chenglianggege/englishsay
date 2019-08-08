@@ -181,8 +181,9 @@ axios.interceptors.request.use(async (config) => {
 axios.interceptors.response.use(function (response) {
     //Log(new Date().getTime(),'axios.request.response',response)
     if (response.data.retCode === 4001) {
+        console.log('global login')
         try {
-            BaseComponent.screen.nav().push('Login',{kickass: true});
+            BaseComponent.screen.nav().push('Login');
         }catch (e) {
             Log('retCode: 4001, to Login exception', e)
         }

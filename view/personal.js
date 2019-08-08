@@ -176,9 +176,28 @@ export default class Personal extends Component {
                             rightIcon={{name: 'chevron-small-right', type: "entypo"}}
                             onPress={()=> this.props.navigation.push('Username')}
                         />
+                        <ListItem
+                            title='注销账号'
+                            leftIcon={<Image source={require('./../assets/personal/zhuxiaozhanghao.png')} style={styles.menuIcon} />}
+                            underlayColor="#f5f5f5"
+                            titleStyle={[styles.menuText]}
+                            containerStyle={styles.menu}
+                            rightIcon={{name: 'chevron-small-right', type: "entypo"}}
+                            onPress={()=> this.props.navigation.push('Userleave')}
+                        />
                     </List>
-
                     <List containerStyle={{marginTop:10, borderTopColor: "#e9e9e9"}}>
+                        <ListItem
+                            title='护眼模式'
+                            leftIcon={<Image source={require('./../assets/personal/huyan.png')} style={styles.menuIcon} />}
+                            underlayColor="#f5f5f5"
+                            titleStyle={[styles.menuText]}
+                            containerStyle={styles.menu}
+                            rightIcon={<Switch
+                                value={this.state.value}
+                                onValueChange={(value)=>this._toSent1(value)}
+                            />}
+                        />
                         <ListItem
                             title='清空缓存'
                             leftIcon={<Image source={require('./../assets/personal/huancun.png')} style={styles.menuIcon} />}
@@ -210,6 +229,8 @@ export default class Personal extends Component {
                             rightIcon={{name: 'chevron-small-right', type: "entypo"}}
                             onPress={()=> this._showTest()}
                         />
+                    </List>
+                    <List containerStyle={{marginTop:10, borderTopColor: "#e9e9e9"}}>
                         <ListItem
                             title='用户协议'
                             leftIcon={<Image source={require('./../assets/personal/yonghuxieyi.png')} style={styles.menuIcon} />}
@@ -220,18 +241,15 @@ export default class Personal extends Component {
                             onPress={()=> this.props.navigation.push('Useragreement')}
                         />
                         <ListItem
-                            title='护眼模式'
-                            leftIcon={<Image source={require('./../assets/personal/huyan.png')} style={styles.menuIcon} />}
+                            title='隐私政策'
+                            leftIcon={<Image source={require('./../assets/personal/yinsi.png')} style={styles.menuIcon} />}
                             underlayColor="#f5f5f5"
                             titleStyle={[styles.menuText]}
                             containerStyle={styles.menu}
-                            rightIcon={<Switch
-                                value={this.state.value}
-                                onValueChange={(value)=>this._toSent1(value)}
-                            />}
+                            rightIcon={{name: 'chevron-small-right', type: "entypo"}}
+                            onPress={()=> this.props.navigation.push('Userprivacy')}
                         />
-                    </List>
-
+                    </List>    
                     <Button
                         onPress={()=> this._toLogout()}
                         buttonStyle={{height: 56, backgroundColor:"#fff"}}
@@ -411,6 +429,7 @@ export default class Personal extends Component {
                     let res = await axios.post(API_HOST + '/v2/user/info/upload-avatar', formdata,{'Content-Type': 'application/x-www-form-urlencoded'})
                     console.log(res.data)
                     if (res.data.retCode === 4001) {
+                        console.log('personal login')
                         _this.props.navigation.navigate({routeName: 'Login', params: {kickass: true}});
                         return
                     }

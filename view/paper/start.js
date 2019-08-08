@@ -93,8 +93,9 @@ export default class PaperStart extends BaseComponent {
                 DeviceEventEmitter.emit('onProcess', exam.exam_id);
             }
             let paper = exam_type === 1 ? await api.getHomeworkPaper(exam.exam_id, qsIds) : await api.getExercisePaper(exam.exam_id);
-            console.log(11111111122222,paper)
+            
             if (paper.retCode === 4001) {
+                console.log('start login')
                 return this.props.navigation.navigate({routeName: 'Login', params: {kickass: true}});
             }
             if (paper.retCode !== 0) {

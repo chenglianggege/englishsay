@@ -161,15 +161,21 @@ export default class Load extends BaseComponent {
                             return this.props.navigation.replace('Main2')
                         }
                     }
+                    console.log(8847)
                     this.props.navigation.replace('Login')
                 }else{
+                    //如果登录失败
+                    console.log(8848)
                     this.props.navigation.replace('Login',{kickass: true})
                 }
             }else {
-                this.props.navigation.replace('Login')
+                //如果没有token
+                console.log(8849,token)
+                //this.props.navigation.replace('Login')
             }
 
         }catch (e) {
+            console.log(8850)
             //LogServer('LOAD_EXCEPTION', e)
             this.props.navigation.replace('Login')
         }finally {

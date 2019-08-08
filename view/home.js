@@ -28,6 +28,7 @@ var Progress = require('react-native-progress');
 import Download from './common/Download'
 import RNFS from "react-native-fs";
 import examAttendStorage from "../libs/examAttendStorage";
+import SystemSetting from 'react-native-system-setting';
 
 export default class Home extends Component {
     static navigationOptions =  ({ navigation }) => ({
@@ -69,6 +70,7 @@ export default class Home extends Component {
                 //console.log(agentInfo)
                 await _this.setState({userInfo: userInfo, agentInfo: agentInfo})
             }catch (e) {
+                console.log('home1 login')
                 _this.props.navigation.navigate({routeName: 'Login', params: {kickass: true}});
             }
         });
@@ -88,6 +90,20 @@ export default class Home extends Component {
                         _this._checkPermission()
                     }},
             ],{ cancelable: false })
+        }
+
+        try {
+            //获取亮度开关
+            let brightValue = await global.storage.load({key: 'brightNessValue'})
+            console.log("亮度开关："+brightValue)
+            
+            if(brightValue){
+                let brightNessNumold = await global.storage.load({key: 'brightNessNum'})
+                SystemSetting.setAppBrightness(brightNessNumold/3)
+            }
+        }catch (e) {
+            await global.storage.save({key: 'brightNessValue', data: false})
+            console.log(e)
         }
     }
     componentWillUnmount() {
@@ -481,6 +497,7 @@ export default class Home extends Component {
             })
             this.setState({netError: false})
             if (listData.data.retCode === 4001) {
+                console.log('home login')
                 this.props.navigation.navigate({routeName: 'Login', params: {kickass: true}});
                 // NavigationActions.navigate('Login')
                 return

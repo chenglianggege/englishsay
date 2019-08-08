@@ -18,6 +18,9 @@ import Setting from "./view/setting/setting";
 import Passwd from "./view/setting/passwd";
 import Username from "./view/setting/username";
 import Useragreement from "./view/setting/useragreement";
+import Userprivacy from "./view/setting/userprivacy";
+import Userleave from "./view/setting/userleave";
+import Userleavelast from "./view/setting/userleavelast";
 import Phone from "./view/setting/phone";
 import Test from "./view/device/test";
 import Reg from "./view/reg";
@@ -104,6 +107,9 @@ let App = createStackNavigator({
     Phone: {screen: Phone},
     Username: {screen: Username},
     Useragreement: {screen: Useragreement},
+    Userprivacy: {screen: Userprivacy},
+    Userleave: {screen: Userleave},
+    Userleavelast: {screen: Userleavelast},
 
 
 

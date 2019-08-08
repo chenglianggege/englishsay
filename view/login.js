@@ -13,7 +13,7 @@ import {
 import { Button } from 'react-native-elements'
 import axios from 'axios';
 import Toast, {DURATION} from 'react-native-easy-toast'
-import {LoaderScreen} from 'react-native-ui-lib';
+import {LoaderScreen,Dialog} from 'react-native-ui-lib';
 import DeviceInfo from 'react-native-device-info';
 
 const {height, width} = Dimensions.get('window');
@@ -25,14 +25,14 @@ export default class Login extends Component<Props> {
     });
     constructor(props) {
         super(props);
-        this.state = {phone: '', password: '', loading:false}
+        this.state = {phone: '', password: '', loading:false, showTest: true}
         this.firstClick = 0;
     }
     async componentDidMount() {
         //this.refs.toast.show(width + '-' + height);
         this._stopBack = this._stopBack.bind(this);
         let params = this.props.navigation.state.params || {}
-        console.log("params",params)
+        console.log("params789",params)
         if (params.hasOwnProperty('kickass')){
             this.refs.toast.show('您的账号刚才在另一设备登录，若非本人操作，建议及时修改密码！');
         }
@@ -42,6 +42,18 @@ export default class Login extends Component<Props> {
         });
         this._didFocusSubscription = this.props.navigation.addListener('didFocus', async () => {
             BackHandler.addEventListener('hardwareBackPress',this._stopBack);
+
+            try {
+                //获取隐私政策开关 
+                let privacyValue = await global.storage.load({key: 'privacyValue'})
+                //let privacyValue = false
+                console.log("隐私政策开关"+privacyValue)
+                this.setState({showTest: privacyValue})
+            }catch (e) {
+                await global.storage.save({key: 'privacyValue', data: false})
+                this.setState({showTest: false})
+                console.log(e)
+            }
         });
         //this.keyboardWillHideListener = Keyboard.addListener('keyboardDidHide',this.keyboardDidHide);
         this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',this.keyboardDidShow);
@@ -58,6 +70,7 @@ export default class Login extends Component<Props> {
 
         }
 
+        
     }
     componentWillUnmount() {
         this._didBlurSubscription.remove();
@@ -90,7 +103,7 @@ export default class Login extends Component<Props> {
     }
 
     render() {
-        const {phone, password} = this.state
+        const {phone, password, showTest} = this.state
         let version = DeviceInfo.getVersion();
         return (
             <View  style={{backgroundColor: '#fff', height: '100%'}}>
@@ -160,14 +173,64 @@ export default class Login extends Component<Props> {
                     </View>
                 </View>
                 </ScrollView>
-
+                <Dialog width={300} overlayBackgroundColor='rgba(0,0,0,0.5)' visible={!showTest} onDismiss={() => console.log('我自闭了')}>
+                    {this._renderTestDialog()}
+                </Dialog>
 
                 {this.state.loading ? <LoaderScreen message="正在登录..."  overlay/> : null}
                 <Toast ref="toast" position="center"/>
             </View>
         );
     }
+    _renderTestDialog() {
+        return (
+            <View style={{backgroundColor:"#fff", borderWidth: 4, borderColor:"#30cc75", alignItems: 'center'}}>
+                <View style={{justifyContent:'center', marginTop: 10}}>
+                    <Text style={{textAlign:'center', fontSize: 18}}>英语说隐私权政策</Text>
+                </View>
+                <View style={{height: 1, backgroundColor: "#e9e9e9", width:"100%", marginTop: 10}} />
+                <View style={{marginTop: 10, width: 270}}>
+                    <Text style={{fontSize: 16, marginTop:10}}>感谢您信任并使用英语说!</Text>
+                    <Text style={{fontSize: 16, marginTop:20}}>我们非常重视您的个人信息和隐私保护。为了更好的保障您的个人权益,在您使用我们的产品前,请您认真阅读<Text onPress={() => this._toYinsi()} style={{color:'#30cc75'}}>《英语说隐私权政策》</Text>的全部内容,同意并接受全部条款后开始使用我们的产品和服务。</Text>
+                    <Text style={{fontSize: 16, marginTop:20}}>若选择不同意,将无法使用我们的产品和服务,并会退出应用。</Text>
+                </View>
+                <View style={{flexDirection: 'row', marginTop: 50}}>
+                    <Button
+                        buttonStyle={{ width: 120, height: 44, borderRadius: 1,borderWidth: 1, borderColor:"#30cc75", backgroundColor: "#fff"}}
+                        textStyle={{fontSize: 17, color: "#30cc75"}}
+                        title="不同意，退出"
+                        onPress={()=> this._toQuitApp()}
+                    />
+                    <Button
+                        buttonStyle={{ width: 120, height: 44, borderRadius: 1, borderColor:"#fff", backgroundColor: "#30cc75"}}
+                        textStyle={{fontSize: 17, color: "#fff"}}
+                        title="同意"
+                        onPress={()=> this.agreePrivacy()}
+                    />
+                </View>
+                <View style={{height: 10, backgroundColor: "#fff", marginTop: 10}} />
+            </View>
+        );
+    }
+    async agreePrivacy () {
+        try{
+            await global.storage.save({key: 'privacyValue', data: true})
+        }catch(e){
+
+        }
+        this.setState({showTest: true})
+    }
+    _toQuitApp () {
+        console.log(8885)
+        this.setState({showTest: true})
+        BackHandler.exitApp()
+    }
+    _toYinsi () {
+        this.setState({showTest: true})
+        this.props.navigation.push('Useragreement')
+    }
     async _toLogin () {
+        console.log('denglujigazi')
         console.log('_toLogin',this.state, global.API_HOST)
         Keyboard.dismiss()
         this.keyboardDidHide()
