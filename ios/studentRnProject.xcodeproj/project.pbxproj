@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -13,6 +14,7 @@
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* studentRnProjectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* studentRnProjectTests.m */; };
 		02EE17AA76804C5AAA024E62 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 34061980405448339BD624C7 /* Zocial.ttf */; };
+		069296A27AE24B7C8B683D32 /* libRNDeviceBrightness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2CE101CFFEF438EA36834D0 /* libRNDeviceBrightness.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -76,6 +78,7 @@
 		5A9147682FE94B84B235FA86 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F2CA7FCAF29E4B0CB7190394 /* FontAwesome.ttf */; };
 		5B7D190C15A4441DB001B843 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1D7E1D59C524EFFBFD3FBC6 /* libRNVectorIcons.a */; };
 		700D358543104495BC5A3A14 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F7194F595C54E2883D4E24E /* Entypo.ttf */; };
+		74E6C85CE0FD48B187D83BCF /* libRNExitApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2A74E38132B440E922DA388 /* libRNExitApp.a */; };
 		7E396EC381A4436EA15D171F /* libreactnativeuilib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB5E36A6FD5C4217AD403AFD /* libreactnativeuilib.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		8571906E69884C84B620ADCC /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 10E3E70E7DAF426287342FAD /* SimpleLineIcons.ttf */; };
@@ -322,6 +325,20 @@
 			proxyType = 2;
 			remoteGlobalIDString = 323A12871E5F266B004975B8;
 			remoteInfo = "ART-tvOS";
+		};
+		2414D1EA2306528300D21439 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D3C123B71F2B4B01A36C43EF /* RNExitApp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 15209BEF1D250F63000D0F44;
+			remoteInfo = RNExitApp;
+		};
+		2450B6C02306985400F2743E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D646607B4FA3457DA0CEB49A /* RNDeviceBrightness.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 189E4F931E73FA6B00C0D8E0;
+			remoteInfo = RNDeviceBrightness;
 		};
 		2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -629,6 +646,10 @@
 		C3C663BEE4634B1EAD433FDD /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		CB5E36A6FD5C4217AD403AFD /* libreactnativeuilib.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libreactnativeuilib.a; sourceTree = "<group>"; };
 		CBBB07151E1E4411A97A202E /* RNImagePicker.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNImagePicker.xcodeproj; path = "../node_modules/react-native-image-picker/ios/RNImagePicker.xcodeproj"; sourceTree = "<group>"; };
+		D2A74E38132B440E922DA388 /* libRNExitApp.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNExitApp.a; sourceTree = "<group>"; };
+		D3C123B71F2B4B01A36C43EF /* RNExitApp.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNExitApp.xcodeproj; path = "../node_modules/react-native-exit-app/ios/RNExitApp.xcodeproj"; sourceTree = "<group>"; };
+		D646607B4FA3457DA0CEB49A /* RNDeviceBrightness.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNDeviceBrightness.xcodeproj; path = "../node_modules/react-native-device-brightness/RNDeviceBrightness.xcodeproj"; sourceTree = "<group>"; };
+		E2CE101CFFEF438EA36834D0 /* libRNDeviceBrightness.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNDeviceBrightness.a; sourceTree = "<group>"; };
 		EFF01A4CB3194178881DE92A /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
 		F2CA7FCAF29E4B0CB7190394 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		F6DAB7611B9145C49C774CC5 /* RCTHotUpdate.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTHotUpdate.xcodeproj; path = "../node_modules/react-native-update/ios/RCTHotUpdate.xcodeproj"; sourceTree = "<group>"; };
@@ -695,6 +716,8 @@
 				E72F7C2D59144A41A26CB3DC /* libAlipayModule.a in Frameworks */,
 				49E1045174074E5AAB2904DD /* libRCTWeChat.a in Frameworks */,
 				1E5D599C162A4CC6B8D2F9CE /* RCTWeChatTests.xctest in Frameworks */,
+				74E6C85CE0FD48B187D83BCF /* libRNExitApp.a in Frameworks */,
+				069296A27AE24B7C8B683D32 /* libRNDeviceBrightness.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -855,6 +878,8 @@
 				5F49E4E7F3CE492FA0AC2CFE /* libAlipayModule.a */,
 				63FA5E9910064E5D9CA4C23C /* libRCTWeChat.a */,
 				90AA6F6F8D044013A6C86709 /* RCTWeChatTests.xctest */,
+				D2A74E38132B440E922DA388 /* libRNExitApp.a */,
+				E2CE101CFFEF438EA36834D0 /* libRNDeviceBrightness.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -996,6 +1021,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		2414D1E72306527500D21439 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2414D1EB2306528300D21439 /* libRNExitApp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2450B6BD2306985300F2743E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2450B6C12306985400F2743E /* libRNDeviceBrightness.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1078,6 +1119,8 @@
 				8F2A44A214944380BF739F2E /* RNDeviceInfo.xcodeproj */,
 				88E1B601F13E41C88F7849E5 /* AlipayModule.xcodeproj */,
 				065D2E3F7723482F95202713 /* RCTWeChat.xcodeproj */,
+				D3C123B71F2B4B01A36C43EF /* RNExitApp.xcodeproj */,
+				D646607B4FA3457DA0CEB49A /* RNDeviceBrightness.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1350,8 +1393,16 @@
 					ProjectRef = 1C6FBDDD21E5D18B002210C4 /* RNCamera.xcodeproj */;
 				},
 				{
+					ProductGroup = 2450B6BD2306985300F2743E /* Products */;
+					ProjectRef = D646607B4FA3457DA0CEB49A /* RNDeviceBrightness.xcodeproj */;
+				},
+				{
 					ProductGroup = 1C8166CF211EB8A4008B18EC /* Products */;
 					ProjectRef = 8F2A44A214944380BF739F2E /* RNDeviceInfo.xcodeproj */;
+				},
+				{
+					ProductGroup = 2414D1E72306527500D21439 /* Products */;
+					ProjectRef = D3C123B71F2B4B01A36C43EF /* RNExitApp.xcodeproj */;
 				},
 				{
 					ProductGroup = 1C3A024B212EA72C004E77A7 /* Products */;
@@ -1604,6 +1655,20 @@
 			fileType = archive.ar;
 			path = "libART-tvOS.a";
 			remoteRef = 1C8EB73D219922C100623E53 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2414D1EB2306528300D21439 /* libRNExitApp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNExitApp.a;
+			remoteRef = 2414D1EA2306528300D21439 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2450B6C12306985400F2743E /* libRNDeviceBrightness.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNDeviceBrightness.a;
+			remoteRef = 2450B6C02306985400F2743E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		2D16E6721FA4F8DC00B85C8A /* libRCTBlob-tvOS.a */ = {
@@ -2028,12 +2093,15 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = studentRnProjectTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2064,12 +2132,15 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = studentRnProjectTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2112,6 +2183,7 @@
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = studentRnProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2159,6 +2231,7 @@
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = studentRnProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2201,11 +2274,14 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = "studentRnProject-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2244,11 +2320,14 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = "studentRnProject-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2286,11 +2365,14 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = "studentRnProject-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2328,11 +2410,14 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-yunpeng-alipay/ios/AlipayModule/**",
 					"$(SRCROOT)/../node_modules/react-native-wechat/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-brightness/RNDeviceBrightness",
 				);
 				INFOPLIST_FILE = "studentRnProject-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",

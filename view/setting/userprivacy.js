@@ -11,7 +11,7 @@ export default class Userprivacy extends BaseComponent {
     render() {
         return (
             <View style={{height: '100%', backgroundColor: '#fff'}}>
-                <Header title="隐私政策" onPress={()=>this.props.navigation.goBack()}/>
+                <Header title="隐私权政策" onPress={()=>this.props.navigation.goBack()}/>
                 <WebView
                     source={{uri: 'https://static.365speak.cn/privacy.html'}}
                     style={{marginTop: 10}}

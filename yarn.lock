@@ -3589,9 +3589,9 @@ lottie-ios@^2.5.0:
   version "2.5.0"
   resolved "https://registry.npmjs.org/lottie-ios/-/lottie-ios-2.5.0.tgz#55c808e785d4a6933b0c10b395530b17098b05de"
 
-lottie-react-native@^2.5.9:
+lottie-react-native@2.5.9:
   version "2.5.9"
-  resolved "https://registry.npmjs.org/lottie-react-native/-/lottie-react-native-2.5.9.tgz#af23764b1b6b43230beeb5e62e1ce86cb879a242"
+  resolved "https://registry.npm.taobao.org/lottie-react-native/download/lottie-react-native-2.5.9.tgz?cache=0&sync_timestamp=1564388542700&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Flottie-react-native%2Fdownload%2Flottie-react-native-2.5.9.tgz#af23764b1b6b43230beeb5e62e1ce86cb879a242"
   dependencies:
     invariant "^2.2.2"
     lottie-ios "^2.5.0"
@@ -4555,10 +4555,14 @@ react-native-blur@^3.1.1:
     prop-types "^15.5.10"
 
 react-native-camera@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.npmjs.org/react-native-camera/-/react-native-camera-1.8.0.tgz#e4749b112b99ce04c60f581d24624cd413d2d14a"
+  version "1.13.1"
+  resolved "https://registry.npm.taobao.org/react-native-camera/download/react-native-camera-1.13.1.tgz#19277ccae0a49dbf1b96049da5b95c847ea7aff2"
   dependencies:
     prop-types "^15.6.2"
+
+react-native-device-brightness@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npm.taobao.org/react-native-device-brightness/download/react-native-device-brightness-1.2.0.tgz#f6498ca5af4c6283212f74aa2f05d1cff0596af0"
 
 react-native-device-info@2.1.2:
   version "2.1.2"
@@ -4594,6 +4598,10 @@ react-native-elements@^0.19.1:
     lodash.times "^4.3.2"
     opencollective "^1.0.3"
     prop-types "^15.5.8"
+
+react-native-exit-app@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/react-native-exit-app/download/react-native-exit-app-1.0.0.tgz#a2fbb121d902e6967cd8a365fe8453e5c4bc3172"
 
 react-native-fs@^2.11.15:
   version "2.11.15"

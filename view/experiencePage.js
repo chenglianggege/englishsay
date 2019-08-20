@@ -69,7 +69,7 @@ export default class experiencePage extends BaseComponent {
                 </View>
                 <View style={{width:width-20,marginLeft:10,marginTop:10}}>
                     <Text style={{fontSize: 16,color: "#353535"}}>
-                        体验完成版功能
+                        体验完整版功能
                     </Text>
                 </View>
                 <ScrollView>

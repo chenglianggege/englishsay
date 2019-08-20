@@ -17,7 +17,7 @@ import {LoaderScreen, Dialog, ActionSheet} from 'react-native-ui-lib';
 import {checkUpdate, downloadUpdate, packageVersion, switchVersion,} from 'react-native-update';
 import _updateConfig from './../update.json';
 import RNFS from "react-native-fs";
-import SystemSetting from 'react-native-system-setting';
+import DeviceBrightness from 'react-native-device-brightness'
 
 const {appKey} = _updateConfig[Platform.OS];
 const version = 'v ' + (packageVersion ? packageVersion : '1.0.0')
@@ -40,33 +40,14 @@ export default class Personal extends Component {
             let askToken = await global.storage.load({key: 'token'})
             let isAskupdate = await axios.get(global.API_HOST + '/v2/software/update',{params: {token: askToken ,package_version:packageVersion ,system:Platform.OS}})
             
-            console.log(isAskupdate)
+            
             _this.setState({userInfo: userInfo, agentInfo: agentInfo, appStoreReview: appStoreReview, isAskupdate:isAskupdate})
             _this._getCacheSize()
 
-            try {
-                //获取亮度开关
-                let brightValue = await global.storage.load({key: 'brightNessValue'})
-                this.setState({value:brightValue})
-            }catch (e) {
-
-            }
-            try {
-                //获取上次亮度数，如果没有，则获取当前亮度储存
-                let brightNessNumold = await global.storage.load({key: 'brightNessNum'})
-                this.setState({
-                    brightnessOld: brightNessNumold
-                })
-                console.log("当前亮度old："+brightNessNumold)
-            }catch (e) {
-                //如果没有调整过，获取当前亮度，将当前亮度存为old
-                let brightNessNumnow = await SystemSetting.getBrightness()
-                await global.storage.save({key: 'brightNessNum', data: brightNessNumnow})
-                this.setState({
-                    brightnessOld: brightNessNumnow
-                })
-            }
-
+            let brightNessNumnow = await DeviceBrightness.getBrightnessLevel()
+            DeviceBrightness.getBrightnessLevel().then(function(vava){
+                console.log(brightNessNumnow,vava,"我不是你爸爸")
+            })
         })
     }
     _getCacheSize (){
@@ -241,7 +222,7 @@ export default class Personal extends Component {
                             onPress={()=> this.props.navigation.push('Useragreement')}
                         />
                         <ListItem
-                            title='隐私政策'
+                            title='隐私权政策'
                             leftIcon={<Image source={require('./../assets/personal/yinsi.png')} style={styles.menuIcon} />}
                             underlayColor="#f5f5f5"
                             titleStyle={[styles.menuText]}
@@ -270,20 +251,20 @@ export default class Personal extends Component {
     }
     
     async _toSent1(v) {
-
         try{
-            await global.storage.save({key: 'brightNessValue', data: v})
+            //await global.storage.save({key: 'brightNessValue', data: v})
         }catch(e){
 
         }
         this.setState({value: v})
-        console.log(v,'之前亮度'+this.state.brightnessOld)
+        //console.log(v,'之前亮度'+this.state.brightnessOld)
         if(v){
-            SystemSetting.setAppBrightness(this.state.brightnessOld/3)
+            console.log(v,'第一个V')
+            DeviceBrightness.setBrightnessLevel(0.3)
         }else{
-            SystemSetting.setAppBrightness(this.state.brightnessOld)
+            console.log(v,'第er个V')
+            DeviceBrightness.setBrightnessLevel(0.8)
         }
-        
     }
 
     _renderTestDialog() {

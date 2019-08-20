@@ -3,6 +3,8 @@ package com.studentrnproject;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import org.capslock.RNDeviceBrightness.RNDeviceBrightness;
+import com.github.wumke.RNExitApp.RNExitAppPackage;
 import com.ninty.system.setting.SystemSettingPackage;
 import com.brentvatne.react.ReactVideoPackage;
 import org.reactnative.camera.RNCameraPackage;
@@ -44,6 +46,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNDeviceBrightness(),
+            new RNExitAppPackage(),
             new SystemSettingPackage(),
             new ReactVideoPackage(),
             new RNCameraPackage(),

@@ -18,6 +18,7 @@ import {
 import Toast, {DURATION} from 'react-native-easy-toast'
 import {LoaderScreen} from 'react-native-ui-lib';
 import axios from 'axios';
+import { reject } from 'any-promise';
 
 export default class Phone extends BaseComponent {
     constructor(props) {
@@ -97,7 +98,7 @@ export default class Phone extends BaseComponent {
             this.setState({loading: true})
             let ret = await axios.post(API_HOST + '/v2/account/login/send-code', {phone: userInfoPhone})
             if (ret.data.retCode === 0) {
-                this.refs.toast.show('短信发送成功，请注册查收！')
+                this.refs.toast.show('短信发送成功，请注意查收！')
                 this._timer()
             }else{
                 this.refs.toast.show(ret.data.retMsg)
@@ -122,6 +123,11 @@ export default class Phone extends BaseComponent {
         }, 1000)
         this.timer = timer
     }
+    _fucc(){
+        return new Promise((resolve,reject)=>{
+            setTimeout(()=>{resolve(true)},2000)
+        })
+    }
     async _phone(){
         const {phone, phone_code, userInfo} = this.state
         const userInfoPhone = userInfo.user_phone
@@ -135,6 +141,8 @@ export default class Phone extends BaseComponent {
             if (ret.data.retCode === 0){
                 let userInfo = await axios.get(global.API_HOST + '/v2/student/info')
                 if (userInfo.data.retCode === 0) {
+                    this.refs.toast.show('注销成功！')
+                    await this._fucc()
                     await global.storage.remove({key: 'token'})
                     await global.storage.remove({key: 'userInfo'})
                     //this.props.navigation.replace('Login')

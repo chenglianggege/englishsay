@@ -23,8 +23,8 @@ import DeviceInfo from 'react-native-device-info';
 
 global.APP_VERSION = '1.0'
 global.AGENT_ID = 1
-global.API_HOST = 'http://192.168.0.109:8001'
-//global.API_HOST = 'https://api.365speak.cn'
+//global.API_HOST = 'http://192.168.0.109:8001'
+global.API_HOST = 'https://api.365speak.cn'
 global.PAPER_STATIC_HOST = 'https://exam.17kouyu.com'
 // global.PAPER_STATIC_HOST = 'https://stkouyu.oss-cn-hangzhou.aliyuncs.com'https://api.365speak.cn*https://api-cp.17kouyu.com
 global.STATIC_HOST = 'https://static.365speak.cn'
